@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createHashRouter } from "react-router";
 import { AutofillSettingsScreen } from "./screens/AutofillSettingsScreen";
 import { LoginScreen } from "./screens/LoginScreen";
 import { SignUpScreen } from "./screens/SignUpScreen";
@@ -10,7 +10,7 @@ import { PasswordGeneratorScreen } from "./screens/PasswordGeneratorScreen";
 import { BackupRecoveryScreen } from "./screens/BackupRecoveryScreen";
 import { AuditDashboardScreen } from "./screens/AuditDashboardScreen";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     Component: LoginScreen,
@@ -47,8 +47,8 @@ export const router = createBrowserRouter([
     path: "/audit",
     Component: AuditDashboardScreen,
   },
-    {
-      path: "/autofill-settings",
-      Component: AutofillSettingsScreen,
-    },
+  {
+    path: "/autofill-settings",
+    Component: AutofillSettingsScreen,
+  },
 ]);
