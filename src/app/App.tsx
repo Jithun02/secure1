@@ -39,7 +39,7 @@ export default function App() {
       }
 
       clearAuthSession();
-      window.location.assign("/");
+      window.location.hash = "/";
     }, 5000);
 
     return () => {
