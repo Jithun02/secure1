@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecurePass Autofill</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+
+    .container {
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 15px;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .logo {
+      font-size: 24px;
+    }
+
+    .status-section {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .status-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4CAF50;
+    }
+
+    .status-indicator.offline {
+      background: #f44336;
+    }
+
+    .control-section {
+      margin-bottom: 20px;
+    }
+
+    .control-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch.enabled {
+      background: #4CAF50;
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: left 0.3s ease;
+    }
+
+    .toggle-switch.enabled::after {
+      left: 26px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #1565c0;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #c8e6c9;
+      color: #2e7d32;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .keyboard-shortcut {
+      background: #fafafa;
+      border: 1px solid #eee;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: "Monaco", "Courier New", monospace;
+      font-size: 12px;
+      color: #666;
+      margin: 10px 0;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 10px 0;
+    }
+
+    .feature-list li {
+      padding: 6px 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .feature-list li::before {
+      content: "✓ ";
+      color: #4CAF50;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      margin-top: 15px;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 10px;
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .success-message {
+      background: #c8e6c9;
+      color: #2e7d32;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="logo">🔐</span>
+      <h1>SecurePass Autofill</h1>
+    </div>
+
+    <div id="successMessage" class="success-message"></div>
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="status-section">
+      <div class="status-item">
+        <span class="status-indicator" id="connStatus"></span>
+        <span id="connStatusText">Checking connection...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-indicator" id="authStatus"></span>
+        <span id="authStatusText">Not authenticated</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      💡 <strong>Tip:</strong> Press <kbd>Cmd/Ctrl + Shift + L</kbd> to autofill on any
+      login page.
+    </div>
+
+    <div class="control-section">
+      <div class="control-label">
+        <span>Enable Autofill</span>
+        <div class="toggle-switch" id="autofillToggle"></div>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <h3 style="font-size: 13px; margin-bottom: 10px; color: #666;">
+        🛡️ Security Features
+      </h3>
+      <ul class="feature-list">
+        <li>AES-256-GCM encryption</li>
+        <li>HTTPS-only protection</li>
+        <li>Origin verification</li>
+        <li>Session-based keys</li>
+      </ul>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-primary" id="openManagerBtn">
+        🔐 Open Password Manager
+      </button>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+      <button class="btn btn-secondary" id="settingsBtn">Settings</button>
+    </div>
+
+    <div class="security-badge">✓ Encrypted & Secure</div>
+
+    <div class="footer">
+      SecurePass v1.0.0 | Secure autofill for your passwords
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

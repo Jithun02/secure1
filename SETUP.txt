@@ -1,0 +1,68 @@
+SECURE PASSWORD MANAGER — SETUP GUIDE
+======================================
+
+PREREQUISITES
+-------------
+- Node.js v18 or higher  (https://nodejs.org)
+- npm v9 or higher       (comes with Node.js)
+
+
+INSTALLATION
+------------
+1. Clone or download the repository.
+
+2. Open a terminal and navigate into the project folder:
+   cd "Secure Password Manager UI"
+
+3. Install all dependencies:
+   npm install
+
+4. Copy the environment file and fill in your values:
+   cp .env.example .env
+   (Open .env and set your SECRET_KEY and any other required values)
+
+
+RUNNING THE PROJECT
+-------------------
+Option A — Frontend only (Vite dev server):
+   npm run dev
+   Then open http://localhost:5173 in your browser.
+
+Option B — Backend server only:
+   npm run server
+   Server runs on http://localhost:3000 by default.
+
+Option C — Frontend + Backend together (recommended):
+   npm run dev:full
+   This starts both concurrently. Open http://localhost:5173.
+
+
+BUILDING FOR PRODUCTION
+-----------------------
+   npm run build
+   Output goes into the "dist/" folder.
+   Serve it with any static file server.
+
+
+BROWSER EXTENSION (optional)
+-----------------------------
+1. Open your browser and go to Extensions settings.
+2. Enable "Developer Mode".
+3. Click "Load Unpacked" and select the "extension/" folder.
+
+
+TECH STACK
+----------
+- React 18 + TypeScript
+- Vite 6 (build tool)
+- Tailwind CSS 4
+- Express.js (backend)
+- Radix UI + shadcn components
+- Recharts, Framer Motion, React Router v7
+
+
+NOTES
+-----
+- Do NOT commit your .env file. It is already in .gitignore.
+- The extension/ folder is a Chrome/Chromium browser extension.
+- AES encryption is used for all stored passwords.

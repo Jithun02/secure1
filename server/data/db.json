@@ -1,0 +1,163 @@
+{
+  "users": [
+    {
+      "id": "a17f20ea-d0d2-4d8f-be27-a504f66b26b0",
+      "username": "jithu",
+      "email": "jithu@example.com",
+      "hashSalt": "ca67219869a8d8fb31c1f29517ff1f14",
+      "keySalt": "4a13f9e7344ef2a97f7f60233d5dadf2",
+      "masterHash": "d5658f681b873eaa6fd57360875230da9a620119a511ca6aaa867b218fd446f87e74a9c5c76e4a0bcd92d2f9297895ccc5c02f6a272bdacc802d738681811370",
+      "createdAt": "2026-03-25T08:40:03.745Z"
+    },
+    {
+      "id": "660fd225-87bb-48a1-9af1-416fb684fabb",
+      "username": "settingsuser",
+      "email": "settings@example.com",
+      "hashSalt": "92f3f43b8d2eb9e6ca1b3360a111c056",
+      "keySalt": "4a682e3ed126269771852d2d7a40f315",
+      "masterHash": "0a3b785a2e52f8e991987bbfae4689cdd3431e4b3d125164c665c10a1c3735b0b5587f660ee587e8b6e8d01764dbd7864a6068990bfe8edff1338855d1b56130",
+      "createdAt": "2026-03-25T08:57:17.097Z"
+    },
+    {
+      "id": "228c78a9-8f27-4b31-bcf1-f82dbadef5cd",
+      "username": "settingsuser",
+      "email": "settings1774429094@example.com",
+      "hashSalt": "8e4c0c00e35dda2b6c3677e697e14763",
+      "keySalt": "8c21354e4496e4342219e87cb067038f",
+      "masterHash": "e7932835f1c3948c2550223bf98450a04bc17f413ce38228a64d507e57099a6f355f20479b4495080e3bf3156cc8e94ac104380bf408d5717152391b55ecf250",
+      "settings": {
+        "biometricEnabled": true,
+        "twoFactorEnabled": true,
+        "darkMode": true,
+        "autoLogoutMinutes": 5
+      },
+      "createdAt": "2026-03-25T08:58:14.650Z"
+    },
+    {
+      "id": "fd2862de-20ad-4989-96b2-1848d8f7d34a",
+      "username": "mr.jithun@gmail.com",
+      "email": "mr.jithun@gmail.com",
+      "hashSalt": "797f5063eb3f17210363c8e88731d32d",
+      "keySalt": "4ebc89f805b1b0540ce10bb29387a607",
+      "masterHash": "eb756ce3fec3d621780ebe06d727ebafb89f7238baedec9f694b71c1e5ffa018feff75820e595891a2541a304b0a33a78ac1988055f439478652a9834702c272",
+      "settings": {
+        "biometricEnabled": true,
+        "twoFactorEnabled": false,
+        "darkMode": false,
+        "autoLogoutMinutes": 15
+      },
+      "createdAt": "2026-03-25T09:00:56.656Z",
+      "passkeyCredentialId": "20fCkQP2CgojeswyjomWi1cZNQY",
+      "passkeyEnabled": true,
+      "biometricKeyHex": "c68e654cc07ead522f8169647f6f7791863c3a7c433757b8bc7fe28297e3ec06",
+      "autofillEnabled": true
+    },
+    {
+      "id": "aafef568-9f0d-422e-b06d-757970ca6639",
+      "username": "abc@gmail.com",
+      "email": "abc@gmail.com",
+      "hashSalt": "b4253cc46d68e86e35971ac397d68651",
+      "keySalt": "b71cce8214a4672c35591a8e4171e7f8",
+      "masterHash": "24abf2c9c023115f9cbd37f94c380e78c629ef455081d583cfa5b526d68b3829dbd5eff768d0d70d5fdefbaffe3586a44be9ddca47be7ab6e29b6caa745f8c17",
+      "settings": {
+        "biometricEnabled": false,
+        "twoFactorEnabled": false,
+        "darkMode": false,
+        "autoLogoutMinutes": 15
+      },
+      "createdAt": "2026-04-10T09:44:35.714Z"
+    },
+    {
+      "id": "83cc3847-25b8-4d5a-a988-569658165edd",
+      "username": "jack",
+      "email": "jithu@gmail.com",
+      "hashSalt": "c5a538e9d1e965dfcb34f5ebde6b29b4",
+      "keySalt": "f5208dd46c153ffb26c4552b3957638e",
+      "masterHash": "dfdd6e971774bda19367101d715f53273a995100c4a4e6fe00024a1844717d43d8f965b4bc7390f89e3865e24933917bce5cbf9a6de4fda393d4fb261fa9bd49",
+      "settings": {
+        "biometricEnabled": false,
+        "twoFactorEnabled": false,
+        "darkMode": false,
+        "autoLogoutMinutes": 15
+      },
+      "createdAt": "2026-04-10T09:45:50.559Z"
+    },
+    {
+      "id": "8f524db1-ed35-4159-b369-f9cd4af8adef",
+      "username": "AutoFill",
+      "email": "autofill.test.15913.5182@example.com",
+      "hashSalt": "ab3ca87cbc67e4979b51956aba205d09",
+      "keySalt": "ebe9713e778dd8df88a1278c2ddb52f9",
+      "masterHash": "edc9a1240fe007c4b019eca6edb951064524fb8f62356d206d73bfe8af5ddbe73c65b75c0f0200b953c014ca4096d625cdfbb6e21ed31bd0cf1bdaff4845fc82",
+      "settings": {
+        "biometricEnabled": false,
+        "twoFactorEnabled": false,
+        "darkMode": false,
+        "autoLogoutMinutes": 15
+      },
+      "createdAt": "2026-04-22T08:22:29.811Z"
+    }
+  ],
+  "passwords": [
+    {
+      "id": "34652d22-3f7f-43b9-a1d3-e006c49988cf",
+      "userId": "8f524db1-ed35-4159-b369-f9cd4af8adef",
+      "name": "GitHub",
+      "username": "autofill-user",
+      "url": "https://github.com/login",
+      "icon": "🔒",
+      "color": "from-blue-400 to-blue-500",
+      "passwordEncrypted": {
+        "iv": "88c6297b4f273bb53aadfbae",
+        "tag": "828f08d342431955f60644967d6a9381",
+        "cipherText": "2706cbbdaa9c956c702331"
+      },
+      "createdAt": "2026-04-22T08:22:29.873Z"
+    },
+    {
+      "id": "a89d0333-1756-4973-ac9a-c6a5ab13e6c7",
+      "userId": "fd2862de-20ad-4989-96b2-1848d8f7d34a",
+      "name": "Facebook",
+      "username": "mr.jithun@gmail.com",
+      "url": "https://www.facebook.com/",
+      "icon": "🔒",
+      "color": "from-blue-400 to-blue-500",
+      "passwordEncrypted": {
+        "iv": "837702ac4a2ab560f32084f9",
+        "tag": "b1208385df9daf8b45f014c974a1b88a",
+        "cipherText": "021152e0091b440809"
+      },
+      "createdAt": "2026-04-22T08:11:27.756Z"
+    },
+    {
+      "id": "6ec1e7b8-3540-45e4-86e8-61c2bf929a85",
+      "userId": "fd2862de-20ad-4989-96b2-1848d8f7d34a",
+      "name": "INSTA",
+      "username": "mr.jithun@gmail.com",
+      "url": "https://www.instagram.com/login",
+      "icon": "🔒",
+      "color": "from-blue-400 to-blue-500",
+      "passwordEncrypted": {
+        "iv": "7b830dea17f61c2f8cd89f61",
+        "tag": "b074e887bf157e088ba3891f1ed294f0",
+        "cipherText": "80b1e1fd3558843ca0"
+      },
+      "createdAt": "2026-04-10T09:32:20.083Z"
+    },
+    {
+      "id": "fd7b0f48-6d89-4980-b3e7-2621f47c7f03",
+      "userId": "a17f20ea-d0d2-4d8f-be27-a504f66b26b0",
+      "name": "GitHub",
+      "username": "jithu",
+      "url": "https://github.com",
+      "icon": "🔒",
+      "color": "from-blue-400 to-blue-500",
+      "passwordEncrypted": {
+        "iv": "fd27ac690277fd9fd56fda8b",
+        "tag": "d1bb63867f5add5b885ddcdae639258b",
+        "cipherText": "2d899b12ae1facd8f8d3f2dc81b48cd73f48"
+      },
+      "createdAt": "2026-03-25T08:40:13.567Z"
+    }
+  ]
+}
