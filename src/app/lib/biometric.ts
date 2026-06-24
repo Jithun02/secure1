@@ -3,7 +3,7 @@ function bytesToBase64Url(bytes: Uint8Array): string {
   bytes.forEach((b) => {
     binary += String.fromCharCode(b);
   });
-  return btoa(binary).replace(/\+/g, "-").replace(/\
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 function base64UrlToBytes(value: string): Uint8Array {
