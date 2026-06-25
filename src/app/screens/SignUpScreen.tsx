@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { apiRequest } from "../lib/api";
+import { localSignup } from "../lib/localApi";
 
 export function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,16 +26,7 @@ export function SignUpScreen() {
     setLoading(true);
 
     try {
-      await apiRequest<{ success: boolean }>("/api/auth/signup", {
-        method: "POST",
-        skipAuth: true,
-        body: JSON.stringify({
-          username,
-          email,
-          masterPassword: password,
-        }),
-      });
-
+      await localSignup(username, email, password);
       alert("Registration successful. Please login.");
       navigate("/");
     } catch (error) {

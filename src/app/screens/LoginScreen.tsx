@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router";
 import { Shield, Eye, EyeOff, Fingerprint, Scan } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { apiRequest } from "../lib/api";
-import { getUserSettings, markActivity, setAuthSession } from "../lib/session";
-import { completeBiometricTwoFactorLogin, verifyBiometricLogin } from "../lib/biometric";
+import { markActivity, setAuthSession } from "../lib/session";
+import { localLogin } from "../lib/localApi";
 
 export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,17 +16,8 @@ export function LoginScreen() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const response = await apiRequest<{
-        token: string;
-        user: { id: string; username: string; email: string };
-      }>("/api/auth/login", {
-        method: "POST",
-        skipAuth: true,
-        body: JSON.stringify({ email, masterPassword }),
-      });
-
+      const response = await localLogin(email, masterPassword);
       setAuthSession({ token: response.token, user: response.user });
       markActivity();
       navigate("/dashboard");
@@ -39,46 +29,7 @@ export function LoginScreen() {
   };
 
   const handleBiometricLogin = async () => {
-    const settings = getUserSettings();
-    const targetEmail = email;
-
-    if (!settings.biometricEnabled) {
-      alert("Enable biometric login from Settings first.");
-      return;
-    }
-
-    if (!targetEmail) {
-      alert("Enter your email first to use biometric login.");
-      return;
-    }
-
-    try {
-      const loginResponse = await verifyBiometricLogin(targetEmail);
-
-      if (loginResponse.requiresTwoFactor) {
-        const enteredCode = window.prompt(
-          `Enter 2FA code: ${loginResponse.code} (valid ${loginResponse.expiresInSeconds}s)`
-        );
-
-        if (!enteredCode) {
-          return;
-        }
-
-        const twoFactorResult = await completeBiometricTwoFactorLogin(
-          loginResponse.pendingLoginToken,
-          enteredCode
-        );
-
-        setAuthSession({ token: twoFactorResult.token, user: twoFactorResult.user });
-      } else {
-        setAuthSession({ token: loginResponse.token, user: loginResponse.user });
-      }
-
-      markActivity();
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "Biometric verification failed");
-    }
+    alert("Biometric login requires the backend server. Please use your email and master password.");
   };
 
   return (

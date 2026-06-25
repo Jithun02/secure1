@@ -9,7 +9,7 @@ import {
   getUserSettings,
   markActivity,
 } from "./lib/session";
-import { apiRequest } from "./lib/api";
+import { clearCurrentSession } from "./lib/localApi";
 
 export default function App() {
   useEffect(() => {
@@ -32,13 +32,8 @@ export default function App() {
 
       if (idleMs < timeoutMs) return;
 
-      try {
-        await apiRequest("/api/auth/logout", { method: "POST" });
-      } catch {
-
-      }
-
       clearAuthSession();
+      clearCurrentSession();
       window.location.hash = "/";
     }, 5000);
 

@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { apiRequest } from "../lib/api";
+import { localGetPasswords, localDeletePassword, clearCurrentSession } from "../lib/localApi";
 import { clearAuthSession, getAuthSession, markActivity } from "../lib/session";
 
 type PasswordEntry = {
@@ -28,12 +28,12 @@ export function DashboardScreen() {
 
   useEffect(() => {
     if (!auth) { navigate("/"); return; }
-    fetchPasswords();
+    fetchPasswords().catch(() => navigate("/"));
   }, []);
 
   async function fetchPasswords() {
     try {
-      const data = await apiRequest<PasswordEntry[]>("/api/passwords");
+      const data = await localGetPasswords();
       setPasswords(data);
     } catch {
       setPasswords([]);
@@ -44,6 +44,7 @@ export function DashboardScreen() {
   }
 
   function handleLogout() {
+    clearCurrentSession();
     clearAuthSession();
     navigate("/");
   }
@@ -59,7 +60,7 @@ export function DashboardScreen() {
   async function handleDelete(id: string) {
     if (!confirm("Delete this password?")) return;
     try {
-      await apiRequest(`/api/passwords/${id}`, { method: "DELETE" });
+      await localDeletePassword(id);
       setPasswords(prev => prev.filter(p => p.id !== id));
     } catch (e) {
       alert(e instanceof Error ? e.message : "Delete failed");

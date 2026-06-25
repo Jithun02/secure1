@@ -3,8 +3,7 @@ import { useNavigate, useParams, Link } from "react-router";
 import { ArrowLeft, Shield, Eye, EyeOff, Copy, Save, Trash2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { apiRequest } from "../lib/api";
-import { getAuthSession } from "../lib/session";
+import { localGetPassword, localUpdatePassword, localDeletePassword } from "../lib/localApi";
 
 type PasswordEntry = {
   id: string;
@@ -27,13 +26,12 @@ export function PasswordDetailsScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!auth) { navigate("/"); return; }
     fetchEntry();
   }, [id]);
 
   async function fetchEntry() {
     try {
-      const data = await apiRequest<PasswordEntry>(`/api/passwords/${id}`);
+      const data = await localGetPassword(id!);
       setEntry(data);
       setSite(data.site);
       setUsername(data.username);
@@ -49,10 +47,7 @@ export function PasswordDetailsScreen() {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiRequest(`/api/passwords/${id}`, {
-        method: "PUT",
-        body: JSON.stringify({ site, username, password }),
-      });
+      await localUpdatePassword(id!, { site, username, password });
       navigate("/dashboard");
     } catch (err) {
       alert(err instanceof Error ? err.message : "Update failed");
@@ -64,7 +59,7 @@ export function PasswordDetailsScreen() {
   async function handleDelete() {
     if (!confirm("Delete this password permanently?")) return;
     try {
-      await apiRequest(`/api/passwords/${id}`, { method: "DELETE" });
+      await localDeletePassword(id!);
       navigate("/dashboard");
     } catch (err) {
       alert(err instanceof Error ? err.message : "Delete failed");

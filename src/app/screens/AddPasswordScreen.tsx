@@ -3,14 +3,13 @@ import { useNavigate, Link } from "react-router";
 import { ArrowLeft, Shield, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { apiRequest } from "../lib/api";
-import { getAuthSession } from "../lib/session";
+import { localAddPassword } from "../lib/localApi";
 
 const CATEGORIES = ["Social", "Email", "Banking", "Work", "Shopping", "Other"];
 
 export function AddPasswordScreen() {
   const navigate = useNavigate();
-  const auth = getAuthSession();
+  const auth = true;
   const [site, setSite] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -38,10 +37,7 @@ export function AddPasswordScreen() {
     }
     setLoading(true);
     try {
-      await apiRequest("/api/passwords", {
-        method: "POST",
-        body: JSON.stringify({ site, username, password, category }),
-      });
+      await localAddPassword({ site, username, password, category });
       navigate("/dashboard");
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to save password");
