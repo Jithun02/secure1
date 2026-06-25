@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import { ArrowLeft, Lock, Fingerprint, Shield, Clock, Moon, Download, Trash2, ChevronRight, HardDrive, BarChart3, Zap } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Switch } from "../components/ui/switch";
-import { apiRequest } from "../lib/api";
 import {
   applyDarkMode,
   clearAuthSession,
@@ -12,7 +11,7 @@ import {
   saveUserSettings,
   type UserSettings,
 } from "../lib/session";
-import { disableBiometricOnServer, enrollBiometric } from "../lib/biometric";
+import { clearCurrentSession, localChangeMasterPassword, localDeleteAccount, localGetPasswords } from "../lib/localApi";
 
 export function SettingsScreen() {
   const navigate = useNavigate();
@@ -23,38 +22,12 @@ export function SettingsScreen() {
     applyDarkMode(settings.darkMode);
   }, [settings.darkMode]);
 
-  useEffect(() => {
-    const syncSettings = async () => {
-      const auth = getAuthSession();
-      if (!auth?.token) return;
-
-      try {
-        const response = await apiRequest<{ settings: UserSettings }>("/api/settings");
-        setSettings(response.settings);
-        saveUserSettings(response.settings);
-      } catch {
-
-      }
-    };
-
-    syncSettings();
-  }, []);
-
   const persistSettings = async (nextSettings: UserSettings) => {
     setSettings(nextSettings);
     saveUserSettings(nextSettings);
-
-    const auth = getAuthSession();
-    if (!auth?.token) return;
-
-    await apiRequest<{ settings: UserSettings }>("/api/settings", {
-      method: "PATCH",
-      body: JSON.stringify(nextSettings),
-    });
   };
 
   const handleChangeMasterPassword = async () => {
-    const auth = getAuthSession();
     const currentPassword = window.prompt("Enter current master password:");
     if (!currentPassword) return;
 
@@ -64,16 +37,8 @@ export function SettingsScreen() {
       return;
     }
 
-    if (!auth?.token) {
-      alert("Login required to change master password.");
-      return;
-    }
-
     try {
-      await apiRequest<{ success: boolean }>("/api/auth/change-master", {
-        method: "POST",
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+      await localChangeMasterPassword(currentPassword, newPassword);
       alert("Master password changed successfully.");
     } catch (error) {
       alert(error instanceof Error ? error.message : "Unable to change master password");
@@ -82,21 +47,6 @@ export function SettingsScreen() {
 
   const handleBiometricToggle = async (enabled: boolean) => {
     try {
-      if (enabled) {
-        const auth = getAuthSession();
-        if (!auth?.user?.email) {
-          alert("Login required before enabling biometric authentication.");
-          return;
-        }
-
-        await enrollBiometric(auth.user.email, auth.user.username);
-      } else {
-        const auth = getAuthSession();
-        if (auth?.token) {
-          await disableBiometricOnServer(auth.token);
-        }
-      }
-
       await persistSettings({ ...settings, biometricEnabled: enabled });
     } catch (error) {
       alert(error instanceof Error ? error.message : "Unable to update biometric setting");
@@ -105,39 +55,8 @@ export function SettingsScreen() {
 
   const handleTwoFactorToggle = async (enabled: boolean) => {
     try {
-      const auth = getAuthSession();
-
-      if (!auth?.token) {
-        await persistSettings({ ...settings, twoFactorEnabled: enabled });
-        return;
-      }
-
-      if (!enabled) {
-        await persistSettings({ ...settings, twoFactorEnabled: false });
-        return;
-      }
-
-      const request = await apiRequest<{ code: string; expiresInSeconds: number }>(
-        "/api/settings/2fa/request",
-        { method: "POST" }
-      );
-
-      const entered = window.prompt(
-        `Enter the 2FA verification code: ${request.code} (valid for ${request.expiresInSeconds} seconds)`
-      );
-
-      if (!entered) {
-        return;
-      }
-
-      const verified = await apiRequest<{ settings: UserSettings }>("/api/settings/2fa/verify", {
-        method: "POST",
-        body: JSON.stringify({ code: entered }),
-      });
-
-      setSettings(verified.settings);
-      saveUserSettings(verified.settings);
-      alert("Two-factor authentication enabled.");
+      await persistSettings({ ...settings, twoFactorEnabled: enabled });
+      alert(enabled ? "Two-factor authentication enabled." : "Two-factor authentication disabled.");
     } catch (error) {
       alert(error instanceof Error ? error.message : "Unable to update 2FA setting");
     }
@@ -165,20 +84,8 @@ export function SettingsScreen() {
 
   const handleExportBackup = async () => {
     try {
-      const auth = getAuthSession();
-      let data: unknown;
-
-      if (auth?.token) {
-        const response = await apiRequest<{ data: unknown }>("/api/data/export");
-        data = response.data;
-      } else {
-        data = {
-          exportedAt: new Date().toISOString(),
-          settings,
-          message: "No authenticated account session. Export includes local settings only.",
-        };
-      }
-
+      const passwords = await localGetPasswords();
+      const data = { exportedAt: new Date().toISOString(), version: "1.0", passwords, settings };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -192,23 +99,11 @@ export function SettingsScreen() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      return;
-    }
-
+    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     try {
-      const auth = getAuthSession();
-      if (auth?.token) {
-        await apiRequest<{ success: boolean }>("/api/account", { method: "DELETE" });
-      }
-
+      await localDeleteAccount();
       clearAuthSession();
-      saveUserSettings({
-        biometricEnabled: false,
-        twoFactorEnabled: false,
-        darkMode: false,
-        autoLogoutMinutes: 15,
-      });
+      saveUserSettings({ biometricEnabled: false, twoFactorEnabled: false, darkMode: false, autoLogoutMinutes: 15 });
       applyDarkMode(false);
       alert("Account deleted.");
       navigate("/");

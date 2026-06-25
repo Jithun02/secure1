@@ -13,7 +13,7 @@ import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { apiRequest } from "../lib/api";
+import { createBackup, downloadBackup, restoreBackup } from "../lib/backup";
 
 type BackupData = {
   backupId: string;
@@ -54,41 +54,15 @@ export function BackupRecoveryScreen() {
 
   const handleCreateBackup = async () => {
     if (creating) return;
-
     setCreating(true);
     setErrorMessage("");
     setSuccessMessage("");
-
     try {
-      const response = await apiRequest<{
-        success: boolean;
-        backup: BackupData;
-      }>("/api/backup/create", {
-        method: "POST",
-        body: JSON.stringify({})
-      });
-
-      if (response.success && response.backup) {
-
-        const backupJson = JSON.stringify(response.backup, null, 2);
-        const blob = new Blob([backupJson], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `password-backup-${response.backup.backupId.slice(0, 8)}-${new Date().toISOString().split("T")[0]}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        setSuccessMessage(`✅ Backup created successfully! (${response.backup.passwordCount} passwords)`);
-      }
+      const backup = await createBackup();
+      downloadBackup(backup);
+      setSuccessMessage(`Backup created successfully! (${backup.passwordCount} passwords)`);
     } catch (error) {
-      if (error instanceof Error && error.message.includes("Session expired")) {
-        navigate("/");
-        return;
-      }
-      setErrorMessage(`❌ Backup failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setErrorMessage(`Backup failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setCreating(false);
     }
@@ -122,42 +96,18 @@ export function BackupRecoveryScreen() {
 
   const confirmRestore = async () => {
     if (!pendingRestoreFile || restoring) return;
-
     setRestoring(true);
     setErrorMessage("");
     setSuccessMessage("");
     setShowConfirmRestore(false);
-
     try {
-      const response = await apiRequest<{
-        success: boolean;
-        restoredCount: number;
-        importedCount: number;
-        duplicateCount: number;
-      }>("/api/backup/restore", {
-        method: "POST",
-        body: JSON.stringify({
-          encryptedData: pendingRestoreFile.encryptedData,
-          checksum: pendingRestoreFile.checksum
-        })
-      });
-
-      if (response.success) {
-        setRestoreResult({
-          restoredCount: response.restoredCount,
-          importedCount: response.importedCount,
-          duplicateCount: response.duplicateCount
-        });
-        setSuccessMessage(
-          `✅ Backup restored! Imported ${response.importedCount} new passwords (${response.duplicateCount} duplicates skipped)`
-        );
+      const result = await restoreBackup(pendingRestoreFile.encryptedData, pendingRestoreFile.checksum);
+      if (result.success) {
+        setRestoreResult({ restoredCount: result.restoredCount, importedCount: result.importedCount, duplicateCount: result.duplicateCount });
+        setSuccessMessage(`Backup restored! Imported ${result.importedCount} new passwords (${result.duplicateCount} duplicates skipped)`);
       }
     } catch (error) {
-      if (error instanceof Error && error.message.includes("Session expired")) {
-        navigate("/");
-        return;
-      }
-      setErrorMessage(`❌ Restore failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setErrorMessage(`Restore failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setRestoring(false);
       setPendingRestoreFile(null);

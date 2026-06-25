@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Button } from "../components/ui/button";
 import { Switch } from "../components/ui/switch";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { apiRequest } from "../lib/api";
+import { getAutofillSettings, saveAutofillSettings } from "../lib/localApi";
 
 type AutofillSettings = {
   autofillEnabled: boolean;
@@ -38,13 +38,9 @@ export function AutofillSettingsScreen() {
       try {
         setLoading(true);
         setError("");
-        const response = await apiRequest<AutofillSettings>("/api/autofill/settings");
+        const response = getAutofillSettings();
         setSettings(response);
       } catch (err) {
-        if (err instanceof Error && err.message.includes("Session expired")) {
-          navigate("/");
-          return;
-        }
         setError(err instanceof Error ? err.message : "Failed to load settings");
       } finally {
         setLoading(false);
@@ -63,20 +59,11 @@ export function AutofillSettingsScreen() {
 
     try {
       const newSettings = { ...settings, [key]: value };
-      await apiRequest("/api/autofill/settings", {
-        method: "PATCH",
-        body: JSON.stringify({ [key]: value })
-      });
-
+      saveAutofillSettings(newSettings);
       setSettings(newSettings);
       setSuccess("✓ Setting updated successfully");
-
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      if (err instanceof Error && err.message.includes("Session expired")) {
-        navigate("/");
-        return;
-      }
       setError(err instanceof Error ? err.message : "Failed to update setting");
     } finally {
       setSaving(false);

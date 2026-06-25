@@ -1,4 +1,5 @@
 const USERS_KEY = "spm_users_v2";
+const AUTOFILL_KEY = "spm_autofill_settings";
 
 type StoredUser = {
   id: string;
@@ -18,13 +19,20 @@ type StoredEntry = {
   tag: string;
 };
 
-type PasswordEntry = {
+export type PasswordEntry = {
   id: string;
   site: string;
   username: string;
   password: string;
   category?: string;
   createdAt?: string;
+};
+
+export type AutofillSettings = {
+  autofillEnabled: boolean;
+  httpsOnly: boolean;
+  matchOnUrl: boolean;
+  matchOnName: boolean;
 };
 
 function vaultKey(userId: string) {
@@ -176,6 +184,43 @@ export async function localLogin(email: string, masterPassword: string): Promise
   };
 }
 
+export async function localChangeMasterPassword(currentPassword: string, newPassword: string): Promise<void> {
+  if (!_currentUserId) throw new Error("Not authenticated.");
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.id === _currentUserId);
+  if (userIndex === -1) throw new Error("User not found.");
+  const user = users[userIndex];
+
+  const currentHash = await hashPassword(currentPassword, user.salt);
+  if (currentHash !== user.passwordHash) throw new Error("Current password is incorrect.");
+
+  const passwords = await localGetPasswords();
+
+  const newSalt = randomHex(32);
+  const newKeySalt = randomHex(32);
+  const newPasswordHash = await hashPassword(newPassword, newSalt);
+  const newKey = await deriveKey(newPassword, newKeySalt);
+
+  const newVault: StoredEntry[] = [];
+  for (const entry of passwords) {
+    const encrypted = await encryptData(entry, newKey);
+    newVault.push({ id: entry.id, userId: _currentUserId!, ...encrypted });
+  }
+
+  users[userIndex] = { ...user, salt: newSalt, keySalt: newKeySalt, passwordHash: newPasswordHash };
+  saveUsers(users);
+  saveVault(_currentUserId!, newVault);
+  _currentKey = newKey;
+}
+
+export async function localDeleteAccount(): Promise<void> {
+  if (!_currentUserId) return;
+  const users = getUsers().filter(u => u.id !== _currentUserId);
+  saveUsers(users);
+  localStorage.removeItem(vaultKey(_currentUserId));
+  clearCurrentSession();
+}
+
 export async function localGetPasswords(): Promise<PasswordEntry[]> {
   if (!_currentKey || !_currentUserId) throw new Error("Not authenticated.");
   const vault = getVault(_currentUserId);
@@ -228,4 +273,62 @@ export async function localDeletePassword(id: string): Promise<void> {
   if (!_currentUserId) throw new Error("Not authenticated.");
   const vault = getVault(_currentUserId);
   saveVault(_currentUserId, vault.filter(e => e.id !== id));
+}
+
+export function getAutofillSettings(): AutofillSettings {
+  try {
+    const raw = localStorage.getItem(AUTOFILL_KEY);
+    if (!raw) return { autofillEnabled: true, httpsOnly: true, matchOnUrl: true, matchOnName: true };
+    return JSON.parse(raw) as AutofillSettings;
+  } catch {
+    return { autofillEnabled: true, httpsOnly: true, matchOnUrl: true, matchOnName: true };
+  }
+}
+
+export function saveAutofillSettings(settings: AutofillSettings): void {
+  localStorage.setItem(AUTOFILL_KEY, JSON.stringify(settings));
+}
+
+export async function localCreateBackup(): Promise<{ passwordCount: number; blob: Blob; filename: string }> {
+  const passwords = await localGetPasswords();
+  const backup = {
+    version: "1.0",
+    exportedAt: new Date().toISOString(),
+    passwords,
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const filename = `securepass-backup-${new Date().toISOString().split("T")[0]}.json`;
+  return { passwordCount: passwords.length, blob, filename };
+}
+
+export async function localRestoreBackup(file: File): Promise<{ importedCount: number; duplicateCount: number }> {
+  if (!_currentKey || !_currentUserId) throw new Error("Not authenticated.");
+  const text = await file.text();
+  let data: { passwords?: PasswordEntry[] };
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Invalid backup file — not valid JSON.");
+  }
+  if (!Array.isArray(data.passwords)) {
+    throw new Error("Invalid backup format. Expected a SecurePass backup file.");
+  }
+
+  const existing = await localGetPasswords();
+  const existingKeys = new Set(existing.map(p => `${p.site}::${p.username}`));
+
+  let importedCount = 0;
+  let duplicateCount = 0;
+
+  for (const entry of data.passwords) {
+    const key = `${entry.site}::${entry.username}`;
+    if (existingKeys.has(key)) {
+      duplicateCount++;
+    } else {
+      await localAddPassword({ site: entry.site, username: entry.username, password: entry.password, category: entry.category });
+      importedCount++;
+    }
+  }
+
+  return { importedCount, duplicateCount };
 }
